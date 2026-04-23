@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scrolling Through Youth - Social Media &amp; Young People</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Serif+Display:ital@0;1&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f; --bg2: #111118; --bg3: #16161f; --surface: #1c1c28; --border: #2a2a3a;
+    --accent: #e8ff47; --accent2: #ff4d6d; --accent3: #47c5ff; --text: #f0f0f5; --muted: #888899;
+    --font-display: 'DM Serif Display', serif; --font-sans: 'Syne', sans-serif; --font-mono: 'Space Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-sans); line-height: 1.6; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 9999; opacity: 0.35; }
+
+  nav { position: fixed; top: 0; width: 100%; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 3rem; background: rgba(10,10,15,0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a { font-size: 0.8rem; font-weight: 600; color: var(--muted); text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--accent); }
+
+  .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; padding: 8rem 3rem 5rem; position: relative; overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 60% 30%, rgba(232,255,71,0.06) 0%, transparent 70%), radial-gradient(ellipse 50% 50% at 20% 80%, rgba(71,197,255,0.05) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 70%, rgba(255,77,109,0.05) 0%, transparent 60%); pointer-events: none; }
+  .hero-eyebrow { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.5rem; opacity: 0; animation: fadeUp 0.8s 0.2s forwards; }
+  .hero-title { font-family: var(--font-display); font-size: clamp(3.5rem, 9vw, 9rem); line-height: 0.95; font-weight: 400; max-width: 900px; opacity: 0; animation: fadeUp 0.9s 0.35s forwards; }
+  .hero-title em { font-style: italic; color: var(--accent2); }
+  .hero-subtitle { margin-top: 2.5rem; font-size: 1.1rem; font-weight: 400; color: var(--muted); max-width: 560px; line-height: 1.7; opacity: 0; animation: fadeUp 0.9s 0.5s forwards; }
+  .hero-meta { display: flex; gap: 3rem; margin-top: 3rem; opacity: 0; animation: fadeUp 0.9s 0.65s forwards; }
+  .hero-meta-item { font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); }
+  .hero-meta-item strong { display: block; color: var(--text); margin-bottom: 0.2rem; }
+  .hero-scroll { position: absolute; bottom: 2.5rem; right: 3rem; font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; display: flex; align-items: center; gap: 0.7rem; opacity: 0; animation: fadeUp 1s 1s forwards; }
+  .hero-scroll::before { content: ''; display: block; width: 1px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); animation: scrollLine 1.5s 1.5s ease-in-out infinite; }
+
+  .ticker-wrap { background: var(--accent); padding: 0.7rem 0; overflow: hidden; white-space: nowrap; }
+  .ticker-inner { display: inline-flex; gap: 4rem; animation: ticker 30s linear infinite; }
+  .ticker-item { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; color: var(--bg); text-transform: uppercase; letter-spacing: 0.1em; }
+  .ticker-dot { color: var(--accent2); }
+
+  section { padding: 7rem 3rem; }
+  .section-label { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 3rem; display: flex; align-items: center; gap: 1rem; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--border), transparent); }
+  .section-title { font-family: var(--font-display); font-size: clamp(2.2rem, 5vw, 4.5rem); line-height: 1.05; font-weight: 400; margin-bottom: 2rem; }
+  .section-title em { font-style: italic; color: var(--accent3); }
+
+  .stats-section { background: var(--bg2); }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5px; background: var(--border); border: 1px solid var(--border); margin-top: 4rem; }
+  .stat-card { background: var(--bg2); padding: 3rem 2.5rem; position: relative; overflow: hidden; transition: background 0.3s; }
+  .stat-card:hover { background: var(--bg3); }
+  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 0; background: var(--accent); transition: height 0.4s ease; }
+  .stat-card:hover::before { height: 100%; }
+  .stat-num { font-family: var(--font-display); font-size: 4rem; font-style: italic; color: var(--accent); line-height: 1; margin-bottom: 0.5rem; }
+  .stat-desc { font-size: 0.95rem; color: var(--muted); line-height: 1.6; }
+  .stat-source { font-family: var(--font-mono); font-size: 0.6rem; color: var(--border); margin-top: 1rem; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  .issue-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-top: 4rem; align-items: start; }
+  .issue-body { font-size: 1.05rem; line-height: 1.85; color: var(--muted); }
+  .issue-body p + p { margin-top: 1.4rem; }
+  .issue-body strong { color: var(--text); font-weight: 600; }
+  .pull-quote { font-family: var(--font-display); font-size: 1.9rem; font-style: italic; line-height: 1.3; color: var(--text); padding: 2.5rem; border-left: 3px solid var(--accent2); background: var(--surface); border-radius: 0 8px 8px 0; margin: 2rem 0; }
+
+  .debate-section { background: var(--bg2); }
+  .debate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-top: 4rem; background: var(--border); }
+  .debate-card { padding: 3.5rem; background: var(--bg2); }
+  .debate-card.pro { border-top: 3px solid var(--accent); }
+  .debate-card.con { border-top: 3px solid var(--accent2); }
+  .debate-card h3 { font-family: var(--font-display); font-size: 2rem; font-style: italic; margin-bottom: 2rem; }
+  .debate-card.pro h3 { color: var(--accent); }
+  .debate-card.con h3 { color: var(--accent2); }
+  .debate-point { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: flex-start; }
+  .debate-bullet { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 2px; flex-shrink: 0; margin-top: 0.2rem; }
+  .pro .debate-bullet { background: var(--accent); color: var(--bg); }
+  .con .debate-bullet { background: var(--accent2); color: white; }
+  .debate-text { font-size: 0.95rem; color: var(--muted); line-height: 1.7; }
+
+  .voices-section { background: var(--bg3); }
+  .voices-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 4rem; }
+  .voice-card { background: var(--surface); border: 1px solid var(--border); padding: 2.5rem; border-radius: 4px; position: relative; transition: border-color 0.3s, transform 0.3s; }
+  .voice-card:hover { border-color: var(--accent3); transform: translateY(-4px); }
+  .voice-quote { font-family: var(--font-display); font-size: 1.25rem; font-style: italic; line-height: 1.5; color: var(--text); margin-bottom: 1.5rem; }
+  .voice-quote::before { content: '\201C'; font-size: 3rem; color: var(--accent3); line-height: 0; vertical-align: -0.5rem; margin-right: 0.1rem; }
+  .voice-attr { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; }
+  .voice-tag { position: absolute; top: 1.5rem; right: 1.5rem; font-family: var(--font-mono); font-size: 0.6rem; padding: 0.2rem 0.6rem; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .tag-negative { background: rgba(255,77,109,0.15); color: var(--accent2); border: 1px solid rgba(255,77,109,0.3); }
+  .tag-positive { background: rgba(232,255,71,0.1); color: var(--accent); border: 1px solid rgba(232,255,71,0.2); }
+  .tag-mixed { background: rgba(71,197,255,0.1); color: var(--accent3); border: 1px solid rgba(71,197,255,0.2); }
+
+  /* ── VOICE SUBMISSION ── */
+  .voice-submit-wrapper { margin-top: 4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; max-width: 700px; }
+  .voice-submit-header { background: var(--accent3); padding: 1.2rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+  .voice-submit-header h3 { font-family: var(--font-mono); font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bg); }
+  .voice-submit-header span { font-family: var(--font-mono); font-size: 0.65rem; color: rgba(10,10,15,0.6); }
+  .voice-submit-body { padding: 2rem; }
+  .voice-submit-body textarea { width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-family: var(--font-sans); font-size: 0.95rem; padding: 1rem; border-radius: 3px; resize: vertical; min-height: 100px; transition: border-color 0.2s; outline: none; }
+  .voice-submit-body textarea:focus { border-color: var(--accent3); }
+  .voice-submit-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
+  .voice-anon-label { display: flex; align-items: center; gap: 0.6rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); cursor: pointer; user-select: none; }
+  .voice-anon-label input { accent-color: var(--accent3); width: 15px; height: 15px; }
+  .voice-tag-select { background: var(--bg3); border: 1px solid var(--border); color: var(--muted); font-family: var(--font-mono); font-size: 0.7rem; padding: 0.4rem 0.8rem; border-radius: 2px; outline: none; cursor: pointer; }
+  .voice-name-input { background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-family: var(--font-sans); font-size: 0.85rem; padding: 0.4rem 0.8rem; border-radius: 3px; outline: none; display: none; }
+  .voice-name-input:focus { border-color: var(--accent3); }
+  .voice-submit-btn { background: var(--accent3); color: var(--bg); border: none; padding: 0.75rem 2rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; border-radius: 2px; transition: opacity 0.2s; }
+  .voice-submit-btn:hover { opacity: 0.85; }
+  .voice-error { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent2); margin-top: 0.75rem; min-height: 1rem; line-height: 1.5; }
+  .voice-success { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); margin-top: 0.75rem; display: none; }
+
+  .community-voices-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; margin-top: 1.5rem; }
+  .community-voice-card { background: var(--bg2); border: 1px solid var(--border); padding: 1.8rem; border-radius: 4px; transition: border-color 0.3s; animation: fadeUp 0.4s ease forwards; }
+  .community-voice-card:hover { border-color: var(--accent3); }
+  .community-voice-text { font-family: var(--font-display); font-size: 1.05rem; font-style: italic; color: var(--text); line-height: 1.5; margin-bottom: 1rem; }
+  .community-voice-text::before { content: '\201C'; color: var(--accent3); }
+  .community-voice-text::after { content: '\201D'; color: var(--accent3); }
+  .community-voice-meta { display: flex; align-items: center; justify-content: space-between; }
+  .community-voice-author { font-family: var(--font-mono); font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .no-responses { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); padding: 2rem 0; letter-spacing: 0.08em; }
+
+  /* ── POLL ── */
+  .poll-section { background: var(--bg); }
+  .poll-wrapper { max-width: 760px; margin: 4rem auto 0; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .poll-header { background: var(--accent); padding: 1.5rem 2.5rem; display: flex; align-items: center; justify-content: space-between; }
+  .poll-header h3 { font-family: var(--font-mono); font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bg); }
+  .poll-header-meta { font-family: var(--font-mono); font-size: 0.65rem; color: rgba(10,10,15,0.6); }
+  .poll-body { padding: 2.5rem; }
+  .poll-step { display: none; }
+  .poll-step.active { display: block; }
+  .poll-progress { display: flex; gap: 0.4rem; margin-bottom: 2rem; }
+  .poll-progress-dot { flex: 1; height: 3px; background: var(--border); border-radius: 2px; transition: background 0.3s; }
+  .poll-progress-dot.done { background: var(--accent); }
+  .poll-progress-dot.current { background: rgba(232,255,71,0.5); }
+  .poll-question { font-family: var(--font-display); font-size: 1.35rem; font-style: italic; margin-bottom: 1.5rem; color: var(--text); line-height: 1.4; }
+  .poll-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .poll-option { display: flex; align-items: center; gap: 1rem; background: var(--bg3); border: 1px solid var(--border); border-radius: 3px; padding: 0.85rem 1.2rem; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; color: var(--muted); }
+  .poll-option:hover { border-color: var(--accent); color: var(--text); background: rgba(232,255,71,0.05); }
+  .poll-option input { accent-color: var(--accent); width: 15px; height: 15px; flex-shrink: 0; }
+  .poll-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 1.5rem; flex-wrap: wrap; gap: 0.75rem; }
+  .poll-btn { background: var(--accent); color: var(--bg); border: none; padding: 0.8rem 2rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; border-radius: 2px; transition: opacity 0.2s; }
+  .poll-btn:hover { opacity: 0.85; }
+  .poll-btn.secondary { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .poll-btn.secondary:hover { color: var(--text); border-color: var(--text); opacity: 1; }
+  .poll-counter { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); }
+  .poll-results-section { display: none; }
+  .poll-results-section.show { display: block; }
+  .poll-results-q { margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+  .poll-results-q:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+  .poll-results-q-label { font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+  .poll-results-q-title { font-family: var(--font-display); font-size: 1rem; font-style: italic; color: var(--text); margin-bottom: 1rem; }
+  .result-bar-wrap { margin: 0.5rem 0; }
+  .result-label { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.62rem; color: var(--muted); margin-bottom: 0.3rem; }
+  .result-label.top { color: var(--accent); }
+  .result-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .result-fill { height: 100%; background: var(--accent); border-radius: 3px; width: 0; transition: width 1s cubic-bezier(0.23, 1, 0.32, 1); }
+  .result-fill.top { background: var(--accent2); }
+  .poll-total-note { font-family: var(--font-mono); font-size: 0.6rem; color: var(--muted); margin-top: 1.5rem; letter-spacing: 0.06em; }
+
+  .timeline-section { background: var(--bg2); }
+  .timeline { position: relative; margin-top: 4rem; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--border); }
+  .tl-item { position: relative; padding: 0 0 3.5rem 3rem; opacity: 0; transform: translateX(-20px); transition: opacity 0.5s ease, transform 0.5s ease; }
+  .tl-item.visible { opacity: 1; transform: translateX(0); }
+  .tl-dot { position: absolute; left: -5px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px rgba(232,255,71,0.5); }
+  .tl-year { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 0.1em; margin-bottom: 0.5rem; text-transform: uppercase; }
+  .tl-title { font-family: var(--font-sans); font-weight: 700; font-size: 1.1rem; color: var(--text); margin-bottom: 0.5rem; }
+  .tl-body { font-size: 0.9rem; color: var(--muted); line-height: 1.7; max-width: 600px; }
+
+  .position-section { background: linear-gradient(135deg, var(--bg) 0%, rgba(232,255,71,0.03) 50%, var(--bg) 100%); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .position-inner { max-width: 800px; margin: 0 auto; text-align: center; padding-top: 2rem; }
+  .position-inner .section-title { margin-bottom: 3rem; }
+  .stance-badge { display: inline-flex; align-items: center; gap: 0.75rem; background: rgba(232,255,71,0.1); border: 1px solid rgba(232,255,71,0.3); border-radius: 100px; padding: 0.6rem 1.5rem; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 3rem; }
+  .stance-badge::before { content: '\25CF'; font-size: 0.5rem; animation: pulse 1.5s ease-in-out infinite; }
+  .position-body { font-size: 1.1rem; line-height: 1.9; color: var(--muted); text-align: left; }
+  .position-body p + p { margin-top: 1.5rem; }
+  .position-body strong { color: var(--text); }
+
+  .refs-section { background: var(--bg3); }
+  .refs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 3rem; }
+  .ref-card { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 3px; transition: border-color 0.2s; }
+  .ref-card:hover { border-color: var(--accent3); }
+  .ref-num { font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent3); letter-spacing: 0.1em; margin-bottom: 0.5rem; text-transform: uppercase; }
+  .ref-text { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+  .ref-text a { color: var(--accent3); text-decoration: none; }
+  .ref-text a:hover { text-decoration: underline; }
+
+  footer { background: var(--bg); border-top: 1px solid var(--border); padding: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  .footer-brand { font-family: var(--font-display); font-size: 1.5rem; font-style: italic; color: var(--text); }
+  .footer-note { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); letter-spacing: 0.08em; }
+
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes scrollLine { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; } .nav-links { display: none; }
+    .hero { padding: 6rem 1.5rem 4rem; } section { padding: 5rem 1.5rem; } footer { padding: 2rem 1.5rem; }
+    .issue-grid, .debate-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">// scrolling through youth</div>
+  <ul class="nav-links">
+    <li><a href="#issue">The Issue</a></li>
+    <li><a href="#data">Data</a></li>
+    <li><a href="#debate">Debate</a></li>
+    <li><a href="#voices">Voices</a></li>
+    <li><a href="#poll">Poll</a></li>
+    <li><a href="#position">My Take</a></li>
+    <li><a href="#references">Sources</a></li>
+  </ul>
+</nav>
+
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-eyebrow">Un-Essay Final Project &nbsp;&#183;&nbsp; Youth in Education &amp; Society</div>
+  <h1 class="hero-title">Scrolling<br>Through<br><em>Youth</em></h1>
+  <p class="hero-subtitle">How social media shapes the development, mental health, education, and futures of young people, and whether the benefits outweigh the cost.</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item"><strong>Abdullah Khaden</strong>Author</div>
+    <div class="hero-meta-item"><strong>Spring 2025</strong>Semester</div>
+    <div class="hero-meta-item"><strong>Social Media &amp; Youth</strong>Topic</div>
+  </div>
+  <div class="hero-scroll">Scroll to explore</div>
+</section>
+
+<div class="ticker-wrap">
+  <div class="ticker-inner">
+    <span class="ticker-item">95% of teens use social media daily <span class="ticker-dot">&#9733;</span></span>
+    <span class="ticker-item">Screen time up 50% since 2019 <span class="ticker-dot">&#9733;</span></span>
+    <span class="ticker-item">Social media linked to teen depression rates <span class="ticker-dot">&#9733;</span></span>
+    <span class="ticker-item">TikTok, Instagram &amp; YouTube dominate teen usage <span class="ticker-dot">&#9733;</span></span>
+    <span class="ticker-item">Gen Z: first generation raised entirely online <span class="ticker-dot">&#9733;</span></span>
+    <span class="ticker-item">Benefits: community, creativity, civic engagement <span class="ticker-dot">&#9733;</span></span>
+    <span class="ticker-item">95% of teens use social media daily <span class="ticker-dot">&#9733;</span></span>
+    <span class="ticker-item">Screen time up 50% since 2019 <span class="ticker-dot">&#9733;</span></span>
+    <span class="ticker-item">Social media linked to teen depression rates <span class="ticker-dot">&#9733;</span></span>
+    <span class="ticker-item">TikTok, Instagram &amp; YouTube dominate teen usage <span class="ticker-dot">&#9733;</span></span>
+    <span class="ticker-item">Gen Z: first generation raised entirely online <span class="ticker-dot">&#9733;</span></span>
+    <span class="ticker-item">Benefits: community, creativity, civic engagement <span class="ticker-dot">&#9733;</span></span>
+  </div>
+</div>
+
+<section id="issue">
+  <div class="section-label">01 &nbsp; The Issue</div>
+  <div class="issue-grid">
+    <div>
+      <h2 class="section-title reveal">The <em>conundrum</em> facing a generation</h2>
+      <div class="issue-body reveal">
+        <p>Today's young people are the first generation to grow up entirely in the social media era. Platforms like Instagram, TikTok, YouTube, and Snapchat are not just entertainment. They are the spaces where identity is formed, friendships are built, and, increasingly, where education and civic life unfold.</p>
+        <p>But this shift has not come without consequence. <strong>The American Psychological Association's 2023 Health Advisory</strong> flagged social media as a significant risk factor for adolescent mental health, pointing to links between heavy use and increased anxiety, depression, poor body image, and disrupted sleep, particularly among girls.</p>
+        <p>Meanwhile, researchers like <strong>Jean Twenge</strong> in her landmark book <em>iGen</em> (2017) argue that the smartphone and social media revolution has fundamentally altered adolescent development, making teens less likely to drive, date, work, or leave the house, while more likely to feel lonely and overwhelmed.</p>
+        <p>Yet critics of the moral panic narrative argue that social media also unlocks real opportunity. It allows marginalized youth to find community, empowers student organizing, supports educational content creation, and gives young people a platform to be heard.</p>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="pull-quote">
+        "The arrival of the smartphone has radically changed every aspect of teenagers' lives, from the way they socialize to how they sleep."
+        <div style="margin-top:1rem; font-family: var(--font-mono); font-size:0.65rem; color: var(--muted);">Jean M. Twenge, iGen (2017)</div>
+      </div>
+      <div class="issue-body" style="margin-top:2rem;">
+        <p>The conundrum is not whether young people will use social media. They will. The question is: <strong>how does society, education, and policy respond in a way that protects youth development while honoring their agency and the real benefits these platforms offer?</strong></p>
+        <p>This project argues that the harm done by unregulated social media exposure to adolescents outweighs its benefits, and that structural change rather than individual willpower is the answer.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats-section" id="data">
+  <div class="section-label">02 &nbsp; The Data</div>
+  <h2 class="section-title reveal">Numbers that <em>demand</em> attention</h2>
+  <div class="stats-grid">
+    <div class="stat-card reveal">
+      <div class="stat-num">95%</div>
+      <div class="stat-desc">of teens report using a social media platform, with YouTube, TikTok, Instagram, and Snapchat leading usage.</div>
+      <div class="stat-source">Pew Research Center, 2022</div>
+    </div>
+    <div class="stat-card reveal">
+      <div class="stat-num">1/3</div>
+      <div class="stat-desc">of teen girls report using social media "almost constantly," a rate that has grown sharply since 2015.</div>
+      <div class="stat-source">Pew Research Center, 2022</div>
+    </div>
+    <div class="stat-card reveal">
+      <div class="stat-num">3x</div>
+      <div class="stat-desc">Teens who spend 5 or more hours daily on social media are 3 times more likely to have a risk factor for suicide than those with only 1 hour of use.</div>
+      <div class="stat-source">Twenge, iGen (2017)</div>
+    </div>
+    <div class="stat-card reveal">
+      <div class="stat-num">8h</div>
+      <div class="stat-desc">Average daily screen media time for teens ages 13 to 18, with a significant portion spent on social platforms.</div>
+      <div class="stat-source">Common Sense Media, 2021</div>
+    </div>
+    <div class="stat-card reveal">
+      <div class="stat-num">40%</div>
+      <div class="stat-desc">of teens say social media makes them feel worse about their own life, yet most also say they could not give it up.</div>
+      <div class="stat-source">Pew Research Center, 2022</div>
+    </div>
+    <div class="stat-card reveal">
+      <div class="stat-num">2015</div>
+      <div class="stat-desc">The inflection year. Teen mental health indicators began declining sharply around 2012 to 2015, coinciding directly with smartphone saturation.</div>
+      <div class="stat-source">APA Health Advisory, 2023</div>
+    </div>
+  </div>
+</section>
+
+<section class="debate-section" id="debate">
+  <div class="section-label">03 &nbsp; The Debate</div>
+  <h2 class="section-title reveal">Two honest sides of the argument</h2>
+  <div class="debate-grid">
+    <div class="debate-card pro reveal">
+      <h3>The Case For Social Media</h3>
+      <div class="debate-point">
+        <span class="debate-bullet">01</span>
+        <div class="debate-text"><strong>Community and belonging:</strong> For LGBTQ+ youth, disabled students, or teens from isolated communities, social media can be a lifeline to peer connection and identity affirmation that does not exist locally.</div>
+      </div>
+      <div class="debate-point">
+        <span class="debate-bullet">02</span>
+        <div class="debate-text"><strong>Educational opportunity:</strong> YouTube, Reddit, and even TikTok host enormous volumes of free educational content, from tutorial-style videos to explainers on history, science, and politics.</div>
+      </div>
+      <div class="debate-point">
+        <span class="debate-bullet">03</span>
+        <div class="debate-text"><strong>Civic and political engagement:</strong> Research shows Gen Z is highly civically engaged, and much of that engagement, including petitions, organizing, and voter registration, flows through social media platforms.</div>
+      </div>
+      <div class="debate-point">
+        <span class="debate-bullet">04</span>
+        <div class="debate-text"><strong>Creative development:</strong> Platforms allow young people to build skills in video editing, writing, design, music, and entrepreneurship. Many teens monetize these skills before adulthood.</div>
+      </div>
+      <div class="debate-point">
+        <span class="debate-bullet">05</span>
+        <div class="debate-text"><strong>Correlation is not causation:</strong> Some researchers argue that the link between social media and poor mental health may be driven by pre-existing conditions rather than platform exposure itself.</div>
+      </div>
+    </div>
+    <div class="debate-card con reveal">
+      <h3>The Case Against</h3>
+      <div class="debate-point">
+        <span class="debate-bullet">01</span>
+        <div class="debate-text"><strong>Mental health crisis:</strong> The APA's 2023 advisory found sufficient evidence linking social media use to anxiety, depression, disordered eating, poor body image, and disrupted sleep in adolescents.</div>
+      </div>
+      <div class="debate-point">
+        <span class="debate-bullet">02</span>
+        <div class="debate-text"><strong>Engineered addiction:</strong> Platforms are explicitly designed using behavioral psychology to maximize engagement time, creating compulsive usage patterns in developing brains that are especially susceptible.</div>
+      </div>
+      <div class="debate-point">
+        <span class="debate-bullet">03</span>
+        <div class="debate-text"><strong>Social comparison harm:</strong> The curated, idealized nature of social media creates constant upward comparison, especially among girls, linked to declining self-esteem and increased risk-taking behavior.</div>
+      </div>
+      <div class="debate-point">
+        <span class="debate-bullet">04</span>
+        <div class="debate-text"><strong>Displacement of development:</strong> Time on screens displaces sleep, physical activity, face-to-face interaction, and independent exploration, all of which are critical to healthy adolescent development.</div>
+      </div>
+      <div class="debate-point">
+        <span class="debate-bullet">05</span>
+        <div class="debate-text"><strong>Algorithmic radicalization:</strong> Recommendation algorithms push increasingly extreme content to keep users engaged, exposing vulnerable youth to harmful communities, misinformation, and self-harm content.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="voices-section" id="voices">
+  <div class="section-label">04 &nbsp; Youth Voices</div>
+  <h2 class="section-title reveal">What young people <em>actually say</em></h2>
+  <div class="voices-grid">
+    <div class="voice-card reveal">
+      <span class="voice-tag tag-negative">Negative</span>
+      <div class="voice-quote">I'd go on Instagram to feel less lonely and end up feeling worse about myself every time. It's a trap.</div>
+      <div class="voice-attr">Teen girl, age 16 &ndash; Common Sense Media Survey</div>
+    </div>
+    <div class="voice-card reveal">
+      <span class="voice-tag tag-positive">Positive</span>
+      <div class="voice-quote">I found my whole community online. As a queer kid in a small town, that connection was everything to me.</div>
+      <div class="voice-attr">Teen, age 17 &ndash; Youth advocacy interview</div>
+    </div>
+    <div class="voice-card reveal">
+      <span class="voice-tag tag-mixed">Mixed</span>
+      <div class="voice-quote">Social media helped me learn about politics and activism. But it also made me anxious all the time about everything happening in the world.</div>
+      <div class="voice-attr">Teen, age 15 &ndash; Pew Research Survey respondent</div>
+    </div>
+    <div class="voice-card reveal">
+      <span class="voice-tag tag-negative">Negative</span>
+      <div class="voice-quote">I can't sleep if I don't check my phone first. I know it's bad. I just can't stop. I don't think I should have to figure this out alone.</div>
+      <div class="voice-attr">Teen boy, age 14 &ndash; APA Case Study</div>
+    </div>
+    <div class="voice-card reveal">
+      <span class="voice-tag tag-positive">Positive</span>
+      <div class="voice-quote">I taught myself graphic design on YouTube and have clients now. None of that would have happened without the internet.</div>
+      <div class="voice-attr">Teen entrepreneur, age 17</div>
+    </div>
+    <div class="voice-card reveal">
+      <span class="voice-tag tag-mixed">Mixed</span>
+      <div class="voice-quote">Adults keep telling us to just put the phone down like it's that simple. The apps are literally engineered to keep us on.</div>
+      <div class="voice-attr">Teen, age 16 &ndash; Op-ed in school newspaper</div>
+    </div>
+  </div>
+
+  <!-- COMMUNITY SUBMISSION BOX -->
+  <div style="margin-top: 5rem;">
+    <div class="section-label" style="margin-bottom: 1.2rem;">Add Your Voice</div>
+    <p style="color: var(--muted); font-size: 0.95rem; max-width: 600px; line-height: 1.7; margin-bottom: 2.5rem;">
+      Share your own experience with social media. Your response will appear on this page for others to read. Keep it respectful, thoughtful, and appropriate.
+    </p>
+    <div class="voice-submit-wrapper reveal">
+      <div class="voice-submit-header">
+        <h3>Share Your Experience</h3>
+        <span id="voiceCount">0 responses so far</span>
+      </div>
+      <div class="voice-submit-body">
+        <textarea id="voiceText" placeholder="How has social media shaped your life as a young person? What would you want adults to know?" maxlength="280"></textarea>
+        <div style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--muted); text-align: right; margin-top: 0.3rem;"><span id="charCount">0</span>/280</div>
+        <div class="voice-submit-row">
+          <div style="display:flex; gap:1.5rem; flex-wrap:wrap; align-items:center;">
+            <label class="voice-anon-label">
+              <input type="checkbox" id="voiceAnon" checked>
+              Post anonymously
+            </label>
+            <input type="text" id="voiceName" class="voice-name-input" placeholder="Your name (optional)" maxlength="40" />
+            <select class="voice-tag-select" id="voiceTagSelect">
+              <option value="positive">Positive experience</option>
+              <option value="negative">Negative experience</option>
+              <option value="mixed" selected>Mixed experience</option>
+            </select>
+          </div>
+          <button class="voice-submit-btn" onclick="submitVoice()">Submit</button>
+        </div>
+        <div class="voice-error" id="voiceError"></div>
+        <div class="voice-success" id="voiceSuccess">Your response has been added. Thank you for sharing.</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 3rem;">
+      <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 1rem;">Community Responses</div>
+      <div class="community-voices-grid" id="communityVoicesGrid">
+        <div class="no-responses" id="noResponsesMsg">No responses yet. Be the first to share your experience.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- POLL -->
+<section class="poll-section" id="poll">
+  <div class="section-label">05 &nbsp; Your Voice</div>
+  <h2 class="section-title reveal" style="max-width:600px;">Take the <em>poll</em></h2>
+  <p style="color: var(--muted); font-size: 0.95rem; max-width: 540px; line-height: 1.7; margin-bottom: 0;" class="reveal">Five quick questions about your relationship with social media. Results are real and update live with every response.</p>
+  <div class="poll-wrapper reveal">
+    <div class="poll-header">
+      <h3>Social Media Experience Poll</h3>
+      <span class="poll-header-meta" id="pollRespondentCount">Loading...</span>
+    </div>
+    <div class="poll-body">
+      <div class="poll-progress" id="pollProgress">
+        <div class="poll-progress-dot current" id="pdot0"></div>
+        <div class="poll-progress-dot" id="pdot1"></div>
+        <div class="poll-progress-dot" id="pdot2"></div>
+        <div class="poll-progress-dot" id="pdot3"></div>
+        <div class="poll-progress-dot" id="pdot4"></div>
+      </div>
+
+      <div class="poll-step active" id="pollStep0">
+        <div class="poll-question">Overall, how has social media impacted your well-being?</div>
+        <div class="poll-options">
+          <label class="poll-option"><input type="radio" name="pq0" value="0"> Mostly positive &ndash; it has been good for me</label>
+          <label class="poll-option"><input type="radio" name="pq0" value="1"> Mostly negative &ndash; it has hurt more than helped</label>
+          <label class="poll-option"><input type="radio" name="pq0" value="2"> Mixed &ndash; benefits and harms in equal measure</label>
+          <label class="poll-option"><input type="radio" name="pq0" value="3"> Neutral &ndash; it does not affect me much</label>
+        </div>
+        <div class="poll-nav">
+          <span class="poll-counter">Question 1 of 5</span>
+          <button class="poll-btn" onclick="pollNext(0)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <div class="poll-step" id="pollStep1">
+        <div class="poll-question">How many hours per day do you typically spend on social media?</div>
+        <div class="poll-options">
+          <label class="poll-option"><input type="radio" name="pq1" value="0"> Less than 1 hour</label>
+          <label class="poll-option"><input type="radio" name="pq1" value="1"> 1 to 2 hours</label>
+          <label class="poll-option"><input type="radio" name="pq1" value="2"> 3 to 5 hours</label>
+          <label class="poll-option"><input type="radio" name="pq1" value="3"> More than 5 hours</label>
+        </div>
+        <div class="poll-nav">
+          <button class="poll-btn secondary" onclick="pollBack(1)">&larr; Back</button>
+          <span class="poll-counter">Question 2 of 5</span>
+          <button class="poll-btn" onclick="pollNext(1)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <div class="poll-step" id="pollStep2">
+        <div class="poll-question">Has social media ever made you feel worse about your own life or appearance?</div>
+        <div class="poll-options">
+          <label class="poll-option"><input type="radio" name="pq2" value="0"> Yes, regularly</label>
+          <label class="poll-option"><input type="radio" name="pq2" value="1"> Sometimes, but not often</label>
+          <label class="poll-option"><input type="radio" name="pq2" value="2"> Rarely or never</label>
+          <label class="poll-option"><input type="radio" name="pq2" value="3"> I do not use social media</label>
+        </div>
+        <div class="poll-nav">
+          <button class="poll-btn secondary" onclick="pollBack(2)">&larr; Back</button>
+          <span class="poll-counter">Question 3 of 5</span>
+          <button class="poll-btn" onclick="pollNext(2)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <div class="poll-step" id="pollStep3">
+        <div class="poll-question">Should schools teach media literacy as a required subject?</div>
+        <div class="poll-options">
+          <label class="poll-option"><input type="radio" name="pq3" value="0"> Yes, it should be required</label>
+          <label class="poll-option"><input type="radio" name="pq3" value="1"> Yes, but only as an elective</label>
+          <label class="poll-option"><input type="radio" name="pq3" value="2"> Not sure</label>
+          <label class="poll-option"><input type="radio" name="pq3" value="3"> No, it is not the school's responsibility</label>
+        </div>
+        <div class="poll-nav">
+          <button class="poll-btn secondary" onclick="pollBack(3)">&larr; Back</button>
+          <span class="poll-counter">Question 4 of 5</span>
+          <button class="poll-btn" onclick="pollNext(3)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <div class="poll-step" id="pollStep4">
+        <div class="poll-question">Who bears the most responsibility for protecting youth from social media harms?</div>
+        <div class="poll-options">
+          <label class="poll-option"><input type="radio" name="pq4" value="0"> Tech companies, through better platform design</label>
+          <label class="poll-option"><input type="radio" name="pq4" value="1"> Governments, through regulation</label>
+          <label class="poll-option"><input type="radio" name="pq4" value="2"> Parents and families</label>
+          <label class="poll-option"><input type="radio" name="pq4" value="3"> Young people themselves</label>
+        </div>
+        <div class="poll-nav">
+          <button class="poll-btn secondary" onclick="pollBack(4)">&larr; Back</button>
+          <span class="poll-counter">Question 5 of 5</span>
+          <button class="poll-btn" onclick="pollSubmit()">Submit Poll</button>
+        </div>
+      </div>
+
+      <div class="poll-results-section" id="pollResults">
+        <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 2rem;">Results from all respondents</div>
+        <div id="pollResultsContent"></div>
+        <div class="poll-total-note" id="pollTotalNote"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="timeline-section" id="timeline">
+  <div class="section-label">06 &nbsp; Timeline</div>
+  <h2 class="section-title reveal">How we got <em>here</em></h2>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">2004 to 2006</div>
+      <div class="tl-title">The Social Web Emerges</div>
+      <div class="tl-body">Facebook launches in 2004 and opens to high schoolers. MySpace peaks. The social internet becomes a mainstream teen space for the first time.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">2010 to 2012</div>
+      <div class="tl-title">Instagram and Smartphones Converge</div>
+      <div class="tl-body">Instagram launches in 2010. Smartphone adoption among teens crosses 50%. The visual, always-on social internet takes hold, and with it, new pressures around appearance and social comparison begin to emerge.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">2012 to 2015</div>
+      <div class="tl-title">The Mental Health Inflection Point</div>
+      <div class="tl-body">Researchers begin noting a sharp rise in teen depression, anxiety, loneliness, and suicide ideation, particularly among girls. Twenge's analysis will later pinpoint this period as the "iGen shift."</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">2016 to 2020</div>
+      <div class="tl-title">Algorithmic Feeds and Political Unrest</div>
+      <div class="tl-body">Platforms shift to algorithm-curated feeds. TikTok enters the scene. Political polarization, misinformation, and mental health concerns intensify, while youth activism including Black Lives Matter and the Climate Strikes also thrives on social media.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">2020 to 2021</div>
+      <div class="tl-title">The Pandemic and Forced Immersion</div>
+      <div class="tl-body">COVID-19 forces school online. Social media becomes teens' primary social outlet. Screen time spikes dramatically. The lines between education, socialization, and content consumption blur completely.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">2023 to Present</div>
+      <div class="tl-title">Reckoning and Regulation</div>
+      <div class="tl-body">The APA issues its first health advisory on adolescent social media use. Congress holds high-profile hearings with tech CEOs. Multiple states pass laws restricting minors' social media access. A societal reckoning begins.</div>
+    </div>
+  </div>
+</section>
+
+<section class="position-section" id="position">
+  <div class="position-inner">
+    <div class="section-label" style="justify-content:center;">07 &nbsp; My Position</div>
+    <div class="stance-badge">Structural change over individual blame</div>
+    <h2 class="section-title reveal">The harm is real, and it is not the fault of young people</h2>
+    <div class="position-body reveal">
+      <p>My position is this: <strong>social media, as currently designed and deployed, does more harm than good to adolescent development.</strong> The responsibility for change lies with tech companies, regulators, educators, and parents, not with teenagers themselves.</p>
+      <p>The evidence is difficult to dismiss. The APA's 2023 health advisory, the longitudinal research in Twenge's <em>iGen</em>, and the Pew Center surveys consistently show a generation experiencing rising rates of anxiety, depression, and loneliness in lockstep with social media adoption. This is not coincidence.</p>
+      <p>But I want to be precise about the diagnosis. <strong>The problem is not social media itself. It is the business model underneath it.</strong> Platforms are optimized for engagement, which means they are optimized for emotional activation, outrage, comparison, and compulsion. They exploit developmental vulnerabilities in adolescent brains that have not yet formed the self-regulatory capacities needed to resist engineered addiction. Telling a 14-year-old to "just log off" is not a solution. It is an abdication of adult responsibility.</p>
+      <p>I also want to honor the real and meaningful benefits many young people find in these spaces, including community, creativity, access, and civic power. <strong>These benefits are worth protecting.</strong> This is why the call for reform must be nuanced: not prohibition, but structural reform. Age-appropriate design standards, algorithmic transparency, limits on behavioral advertising to minors, and media literacy education integrated into schools are all achievable and necessary steps.</p>
+      <p>The generation now in middle school will spend more of their developmental years on social media platforms than any before them. What we do, or fail to do, in the next decade will shape who they become. That is not hyperbole. That is the urgency of this issue.</p>
+    </div>
+  </div>
+</section>
+
+<section class="refs-section" id="references">
+  <div class="section-label">08 &nbsp; References</div>
+  <h2 class="section-title reveal">Sources &amp; <em>Research</em></h2>
+  <div class="refs-grid">
+    <div class="ref-card reveal">
+      <div class="ref-num">Source 01 &ndash; Outside</div>
+      <div class="ref-text">American Psychological Association. (2023). <em>Health advisory on social media use in adolescence.</em> <a href="https://www.apa.org/topics/social-media-internet/health-advisory-adolescents" target="_blank">apa.org</a></div>
+    </div>
+    <div class="ref-card reveal">
+      <div class="ref-num">Source 02 &ndash; Outside</div>
+      <div class="ref-text">Pew Research Center. (2022). <em>Teens, social media and technology 2022.</em> <a href="https://www.pewresearch.org/internet/2022/08/10/teens-social-media-and-technology-2022/" target="_blank">pewresearch.org</a></div>
+    </div>
+    <div class="ref-card reveal">
+      <div class="ref-num">Source 03 &ndash; Outside</div>
+      <div class="ref-text">Twenge, J. M. (2017). <em>iGen: Why Today's Super-Connected Kids Are Growing Up Less Rebellious, More Tolerant, Less Happy, and Completely Unprepared for Adulthood.</em> Atria Books.</div>
+    </div>
+    <div class="ref-card reveal">
+      <div class="ref-num">Source 04 &ndash; Outside</div>
+      <div class="ref-text">Common Sense Media. (2021). <em>The Common Sense census: Media use by tweens and teens.</em> <a href="https://www.commonsensemedia.org/research" target="_blank">commonsensemedia.org</a></div>
+    </div>
+    <div class="ref-card reveal">
+      <div class="ref-num">Source 05 &ndash; Outside</div>
+      <div class="ref-text">Twenge, J. M., Joiner, T. E., Rogers, M. L., &amp; Martin, G. N. (2018). Increases in depressive symptoms, suicide-related outcomes, and suicide rates among U.S. adolescents after 2010. <em>Clinical Psychological Science, 6</em>(1), 3&ndash;17.</div>
+    </div>
+    <div class="ref-card reveal">
+      <div class="ref-num">Source 06 &ndash; Outside</div>
+      <div class="ref-text">Uhls, Y. T., Ellison, N. B., &amp; Subrahmanyam, K. (2017). Benefits and costs of social media in adolescence. <em>Pediatrics, 140</em>(Supplement 2), S67&ndash;S70.</div>
+    </div>
+    <div class="ref-card reveal">
+      <div class="ref-num">Source 07 &ndash; Outside</div>
+      <div class="ref-text">Orben, A., &amp; Przybylski, A. K. (2019). The association between adolescent well-being and digital technology use. <em>Nature Human Behaviour, 3</em>(2), 173&ndash;182.</div>
+    </div>
+    <div class="ref-card reveal">
+      <div class="ref-num">Source 08 &ndash; Course Literature</div>
+      <div class="ref-text">Course reading on youth identity, development, and digital culture. [Instructor-assigned text on youth and digital media, as assigned in course syllabus.]</div>
+    </div>
+    <div class="ref-card reveal">
+      <div class="ref-num">Source 09 &ndash; Course Literature</div>
+      <div class="ref-text">Course reading on structural inequalities in youth education and technology access. [Instructor-assigned text on systemic factors in youth development, as assigned in course syllabus.]</div>
+    </div>
+  </div>
+  <p style="margin-top:2.5rem; font-family:var(--font-mono); font-size:0.65rem; color:var(--muted); max-width:700px;" class="reveal">
+    Note: Sources 08 and 09 are placeholders for your two course-assigned readings. Replace with the exact titles, authors, and page ranges from your syllabus.
+  </p>
+</section>
+
+<footer>
+  <div class="footer-brand">Scrolling Through Youth</div>
+  <div class="footer-note">Un-Essay Final Project &nbsp;&middot;&nbsp; Abdullah Khaden &nbsp;&middot;&nbsp; Spring 2025 &nbsp;&middot;&nbsp; Due May 4th</div>
+</footer>
+
+<script>
+// ── SCROLL REVEAL ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal, .tl-item').forEach(el => observer.observe(el));
+
+// ── ANON TOGGLE ──
+document.getElementById('voiceAnon').addEventListener('change', function() {
+  document.getElementById('voiceName').style.display = this.checked ? 'none' : 'inline-block';
+});
+
+// ── CHAR COUNT ──
+document.getElementById('voiceText').addEventListener('input', function() {
+  document.getElementById('charCount').textContent = this.value.length;
+});
+
+// ── CONTENT FILTER ──
+const BANNED_PATTERNS = [
+  // Exact words and obvious leet-speak / substitution variants
+  /\bf+u+c+k+/i, /\bf[\*\.\-_\$]?u[\*\.\-_]?c[\*\.\-_]?k/i, /\bfuk\b/i, /\bfvck\b/i, /\bphuck\b/i, /\bfucc\b/i,
+  /\bsh+i+t+/i, /\bsh[\!1]t\b/i,
+  /\bass+h+o+l+e/i, /\ba[\$\*]{2}/i,
+  /\bb+i+t+c+h+/i, /\bbyatch\b/i, /\bbytch\b/i,
+  /\bc+u+n+t+/i,
+  /\bd+i+c+k+\b/i,
+  /\bc+o+c+k+\b/i,
+  /\bp+u+s+s+y+\b/i,
+  /\bsl+u+t+\b/i,
+  /\bwh+o+r+e+\b/i,
+  /\bn+i+g+g+e+r+\b/i, /\bn+i+g+g+a+\b/i,
+  /\bf+a+g+g+o+t+\b/i, /\b\bfag\b/i,
+  /\bretard\b/i,
+  /\bkill\s*your\s*self\b/i, /\bkys\b/i, /\bkms\b/i,
+  /\bsuicid/i,
+  /\bself.?harm\b/i,
+  /\bp+o+r+n+\b/i,
+  /\bnude(s)?\b/i,
+  /\bsex\b/i,
+  /\bp+e+n+i+s+\b/i,
+  /\bvagina\b/i,
+  /\bt+i+t+s+\b/i,
+  /\bb+o+o+b+s+\b/i,
+  /\bcum\b/i,
+  /\bjerk\s*off\b/i,
+  /\bweed\b/i, /\bcocaine\b/i, /\bheroin\b/i, /\bmeth\b/i,
+  /\bdrug\s*use\b/i,
+  /\brapist?\b/i,
+  /\bmolest/i,
+  /\bpedophile?\b/i,
+  /\bskank\b/i,
+  /\bhoe\b/i,
+  /\bdyke\b/i,
+  /\bmf\b/i, /\bwtf\b/i, /\bstfu\b/i, /\bgtfo\b/i,
+  // hate speech signals
+  /\bi\s+hate\s+(you|him|her|them|all)/i,
+  /\bgo\s+die\b/i,
+  /\bkill\s+(yourself|him|her|them|all)/i,
+];
+
+function containsBannedContent(text) {
+  const t = text.toLowerCase();
+  // Also test a version stripped of spaces and punctuation for spaced-out bypass attempts
+  const stripped = t.replace(/[\s\.\-_\*@\$!0123]/g, '');
+  for (const pat of BANNED_PATTERNS) {
+    if (pat.test(t) || pat.test(stripped)) return true;
+  }
+  return false;
+}
+
+// ── STORAGE HELPERS ──
+const VOICES_KEY = 'voices-v1';
+const POLL_KEY   = 'poll-v2';
+
+async function storageGet(key, shared) {
+  try { const r = await window.storage.get(key, shared); return r ? JSON.parse(r.value) : null; }
+  catch { return null; }
+}
+async function storageSet(key, val, shared) {
+  try { await window.storage.set(key, JSON.stringify(val), shared); } catch {}
+}
+
+// ── VOICE SUBMISSION ──
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function loadVoices() { return (await storageGet(VOICES_KEY, true)) || []; }
+async function saveVoices(v) { await storageSet(VOICES_KEY, v, true); }
+
+function buildVoiceCard(v) {
+  const tagClass = v.tag === 'positive' ? 'tag-positive' : v.tag === 'negative' ? 'tag-negative' : 'tag-mixed';
+  const tagLabel = v.tag === 'positive' ? 'Positive' : v.tag === 'negative' ? 'Negative' : 'Mixed';
+  const el = document.createElement('div');
+  el.className = 'community-voice-card';
+  el.innerHTML =
+    `<span class="voice-tag ${tagClass}" style="position:relative;top:auto;right:auto;display:inline-block;margin-bottom:0.8rem;">${tagLabel}</span>` +
+    `<div class="community-voice-text">${escapeHtml(v.text)}</div>` +
+    `<div class="community-voice-meta">` +
+      `<span class="community-voice-author">${escapeHtml(v.author)}</span>` +
+      `<span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--border);">${escapeHtml(v.date)}</span>` +
+    `</div>`;
+  return el;
+}
+
+async function renderVoices() {
+  const voices = await loadVoices();
+  const grid = document.getElementById('communityVoicesGrid');
+  const noMsg = document.getElementById('noResponsesMsg');
+  const countEl = document.getElementById('voiceCount');
+  countEl.textContent = voices.length + ' response' + (voices.length !== 1 ? 's' : '') + ' so far';
+  if (voices.length === 0) { grid.innerHTML = ''; grid.appendChild(noMsg || (() => { const d = document.createElement('div'); d.className = 'no-responses'; d.id = 'noResponsesMsg'; d.textContent = 'No responses yet. Be the first to share your experience.'; return d; })()); return; }
+  grid.innerHTML = '';
+  voices.slice().reverse().forEach(v => grid.appendChild(buildVoiceCard(v)));
+}
+
+async function submitVoice() {
+  const text = document.getElementById('voiceText').value.trim();
+  const isAnon = document.getElementById('voiceAnon').checked;
+  const name = document.getElementById('voiceName').value.trim();
+  const tag = document.getElementById('voiceTagSelect').value;
+  const errEl = document.getElementById('voiceError');
+  const successEl = document.getElementById('voiceSuccess');
+  errEl.textContent = '';
+  successEl.style.display = 'none';
+
+  if (!text) { errEl.textContent = 'Please write something before submitting.'; return; }
+  if (text.length < 10) { errEl.textContent = 'Your response is too short. Share a bit more.'; return; }
+  if (containsBannedContent(text)) {
+    errEl.textContent = 'Your response contains inappropriate language and cannot be submitted. Please revise it and try again.';
+    return;
+  }
+  if (!isAnon && name && containsBannedContent(name)) {
+    errEl.textContent = 'The name you entered contains inappropriate content. Please revise it.';
+    return;
+  }
+
+  const author = isAnon ? 'Anonymous' : (name || 'Anonymous');
+  const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const voices = await loadVoices();
+  voices.push({ text, author, tag, date });
+  await saveVoices(voices);
+
+  document.getElementById('voiceText').value = '';
+  document.getElementById('charCount').textContent = '0';
+  successEl.style.display = 'block';
+  setTimeout(() => { successEl.style.display = 'none'; }, 4000);
+  await renderVoices();
+}
+
+// ── POLL ──
+const POLL_QUESTIONS = [
+  { label: 'Overall well-being', q: 'Overall, how has social media impacted your well-being?', opts: ['Mostly positive', 'Mostly negative', 'Mixed', 'Neutral'] },
+  { label: 'Daily usage', q: 'How many hours per day do you typically spend on social media?', opts: ['Less than 1 hour', '1 to 2 hours', '3 to 5 hours', 'More than 5 hours'] },
+  { label: 'Social comparison', q: 'Has social media ever made you feel worse about your own life or appearance?', opts: ['Yes, regularly', 'Sometimes', 'Rarely or never', 'I do not use social media'] },
+  { label: 'Media literacy in schools', q: 'Should schools teach media literacy as a required subject?', opts: ['Yes, it should be required', 'Yes, but only as an elective', 'Not sure', 'No, not the school\'s responsibility'] },
+  { label: 'Responsibility', q: 'Who bears the most responsibility for protecting youth from social media harms?', opts: ['Tech companies', 'Governments', 'Parents and families', 'Young people themselves'] }
+];
+
+let pollAnswers = {};
+
+function updateProgress(step) {
+  for (let i = 0; i < 5; i++) {
+    const d = document.getElementById('pdot' + i);
+    d.className = 'poll-progress-dot' + (i < step ? ' done' : i === step ? ' current' : '');
+  }
+}
+
+function highlightMissing(step) {
+  const opts = document.querySelector('#pollStep' + step + ' .poll-options');
+  opts.style.transition = 'outline 0s';
+  opts.style.outline = '1px solid var(--accent2)';
+  opts.style.borderRadius = '3px';
+  setTimeout(() => { opts.style.outline = ''; }, 900);
+}
+
+function pollNext(step) {
+  const sel = document.querySelector('input[name="pq' + step + '"]:checked');
+  if (!sel) { highlightMissing(step); return; }
+  pollAnswers[step] = parseInt(sel.value);
+  document.getElementById('pollStep' + step).classList.remove('active');
+  document.getElementById('pollStep' + (step + 1)).classList.add('active');
+  updateProgress(step + 1);
+}
+
+function pollBack(step) {
+  document.getElementById('pollStep' + step).classList.remove('active');
+  document.getElementById('pollStep' + (step - 1)).classList.add('active');
+  updateProgress(step - 1);
+}
+
+async function pollSubmit() {
+  const sel = document.querySelector('input[name="pq4"]:checked');
+  if (!sel) { highlightMissing(4); return; }
+  pollAnswers[4] = parseInt(sel.value);
+
+  let data = (await storageGet(POLL_KEY, true)) || { responses: 0, questions: POLL_QUESTIONS.map(q => ({ counts: new Array(q.opts.length).fill(0) })) };
+  data.responses = (data.responses || 0) + 1;
+  for (let i = 0; i < 5; i++) {
+    if (!data.questions[i]) data.questions[i] = { counts: new Array(POLL_QUESTIONS[i].opts.length).fill(0) };
+    const ansIdx = pollAnswers[i];
+    if (ansIdx !== undefined) data.questions[i].counts[ansIdx] = (data.questions[i].counts[ansIdx] || 0) + 1;
+  }
+  await storageSet(POLL_KEY, data, true);
+
+  document.getElementById('pollProgress').style.display = 'none';
+  for (let i = 0; i < 5; i++) document.getElementById('pollStep' + i).classList.remove('active');
+  const resultsEl = document.getElementById('pollResults');
+  resultsEl.classList.add('show');
+  renderPollResults(data);
+
+  // Update header count
+  document.getElementById('pollRespondentCount').textContent = data.responses + ' response' + (data.responses !== 1 ? 's' : '') + ' so far';
+}
+
+function renderPollResults(data) {
+  const container = document.getElementById('pollResultsContent');
+  container.innerHTML = '';
+  POLL_QUESTIONS.forEach((qObj, qi) => {
+    const counts = (data.questions[qi] && data.questions[qi].counts) || [];
+    const total = counts.reduce((a, b) => (a || 0) + (b || 0), 0);
+    const maxIdx = counts.indexOf(Math.max(...counts.map(c => c || 0)));
+    const div = document.createElement('div');
+    div.className = 'poll-results-q';
+    div.innerHTML = `<div class="poll-results-q-label">Question ${qi + 1} &ndash; ${qObj.label}</div><div class="poll-results-q-title">${qObj.q}</div>`;
+    qObj.opts.forEach((opt, oi) => {
+      const count = counts[oi] || 0;
+      const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+      const isTop = oi === maxIdx && total > 0;
+      const wrap = document.createElement('div');
+      wrap.className = 'result-bar-wrap';
+      wrap.innerHTML =
+        `<div class="result-label${isTop ? ' top' : ''}"><span>${opt}${isTop ? ' &#8593;' : ''}</span><span>${pct}% (${count})</span></div>` +
+        `<div class="result-bar"><div class="result-fill${isTop ? ' top' : ''}" data-pct="${pct}"></div></div>`;
+      div.appendChild(wrap);
+    });
+    container.appendChild(div);
+  });
+  document.getElementById('pollTotalNote').textContent = 'Based on ' + data.responses + ' total response' + (data.responses !== 1 ? 's' : '') + '. Your answers have been counted.';
+  setTimeout(() => {
+    container.querySelectorAll('.result-fill').forEach(bar => { bar.style.width = bar.getAttribute('data-pct') + '%'; });
+  }, 80);
+}
+
+async function initPoll() {
+  const data = (await storageGet(POLL_KEY, true)) || { responses: 0 };
+  document.getElementById('pollRespondentCount').textContent = (data.responses || 0) + ' response' + ((data.responses || 0) !== 1 ? 's' : '') + ' so far';
+}
+
+// ── BOOT ──
+renderVoices();
+initPoll();
+</script>
+</body>
+</html>
